@@ -1,2 +1,6 @@
 /build/
 /.cache/
+*.user*
+Thumbs.db*
+.DS_Store
+desktop.ini

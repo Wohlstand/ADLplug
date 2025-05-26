@@ -195,7 +195,7 @@ if(ADLplug_USE_SYSTEM_FMT)
 else()
   add_library(ADLplug_fmt STATIC
     "thirdparty/fmt/src/format.cc"
-    "thirdparty/fmt/src/posix.cc")
+    "thirdparty/fmt/src/os.cc")
   target_include_directories(ADLplug_fmt PUBLIC "thirdparty/fmt/include")
   target_compile_definitions(ADLplug_fmt PUBLIC "FMT_USE_USER_DEFINED_LITERALS=0")
   set_property(TARGET ADLplug_fmt PROPERTY POSITION_INDEPENDENT_CODE ON)

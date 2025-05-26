@@ -1,7 +1,7 @@
 /*
  * Wohlstand's OPN2 Bank File - a bank format to store OPN2 timbre data and setup
  *
- * Copyright (c) 2018 Vitaly Novichkov <admin@wohlnet.ru>
+ * Copyright (c) 2018-2025 Vitaly Novichkov <admin@wohlnet.ru>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the "Software"),
@@ -32,8 +32,22 @@
 extern "C" {
 #endif
 
-#if !defined(__STDC_VERSION__) || (defined(__STDC_VERSION__) && (__STDC_VERSION__ < 199901L)) \
-  || defined(__STRICT_ANSI__) || !defined(__cplusplus)
+/* Solaris defines the integer types regardless of what C/C++ standard is actually available,
+ * so avoid defining them at all by ourselves. */
+#if !defined(WOPN_STDINT_TYPEDEFS_NOT_NEEDED) && defined(__sun)
+#   define WOPN_STDINT_TYPEDEFS_NOT_NEEDED
+#endif
+
+#if !defined(WOPN_STDINT_TYPEDEFS_NEEDED) && !defined(WOPN_STDINT_TYPEDEFS_NOT_NEEDED)
+#   if !defined(__STDC_VERSION__) || \
+       (defined(__STDC_VERSION__) && (__STDC_VERSION__ < 199901L)) || \
+        defined(__STRICT_ANSI__) || \
+       !defined(__cplusplus)
+#       define WOPN_STDINT_TYPEDEFS_NEEDED
+#   endif
+#endif
+
+#ifdef WOPN_STDINT_TYPEDEFS_NEEDED
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
 typedef signed short int int16_t;
@@ -107,7 +121,7 @@ typedef struct WOPNOperator
 typedef struct WOPNInstrument
 {
     /* Title of the instrument */
-    char    inst_name[34];
+    char    inst_name[32];
     /* MIDI note key (half-tone) offset for an instrument (or a first voice in pseudo-4-op mode) */
     int16_t note_offset;
     /* Reserved */
@@ -256,16 +270,6 @@ extern int WOPN_SaveInstToMem(OPNIFile *file, void *dest_mem, size_t length, uin
 
 #ifdef __cplusplus
 }
-#endif
-
-#if __cplusplus >= 201103L
-#include <memory>
-struct WOPNFile_Deleter
-{
-    void operator()(WOPNFile *file) const
-        { WOPN_Free(file); }
-};
-typedef std::unique_ptr<WOPNFile, WOPNFile_Deleter> WOPNFile_Ptr;
 #endif
 
 #endif /* WOPN_FILE_H */
