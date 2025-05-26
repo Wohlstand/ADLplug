@@ -13,6 +13,7 @@ Chip_Settings get_player_chip_settings(const Player &pl)
     Chip_Settings cs;
     cs.emulator = pl.emulator();
     cs.chip_count = pl.num_chips();
+    cs.chan_alloc = pl.channel_alloc_mode();
 #if defined(ADLPLUG_OPL3)
     cs.fourop_count = pl.num_4ops();
 #elif defined(ADLPLUG_OPN2)
@@ -39,6 +40,7 @@ void set_player_chip_settings(Player &pl, const Chip_Settings &cs)
 {
     pl.set_emulator(cs.emulator);
     pl.set_num_chips(cs.chip_count);
+    pl.set_channel_alloc_mode(cs.chan_alloc);
 #if defined(ADLPLUG_OPL3)
     pl.set_num_4ops(cs.fourop_count);
 #elif defined(ADLPLUG_OPN2)

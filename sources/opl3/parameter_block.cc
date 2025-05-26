@@ -133,10 +133,13 @@ void Parameter_Block::setup_parameters(AudioProcessorEx &p)
         }
     }
 
-    StringArray volmodel_choices = {"Generic", "Native", "DMX", "Apogee", "Win9x"};
+    StringArray volmodel_choices = {"Generic", "Native", "DMX", "Apogee", "Win9x SB16", "DMX (Fixed)", "Apogee (Fixed)", "AIL", "Win9x Generic", "HMI SOS", "HMI SOS (old)"};
     p_volmodel = add_parameter<Pt::Choice>(p, 'glob', "volmodel", "Volume model", volmodel_choices, wopl->volume_model, String());
     p_deeptrem = add_parameter<Pt::Bool>(p, 'glob', "deeptrem", "Deep tremolo", wopl->opl_flags & WOPL_FLAG_DEEP_TREMOLO, String());
     p_deepvib = add_parameter<Pt::Bool>(p, 'glob', "deepvib", "Deep vibrato", wopl->opl_flags & WOPL_FLAG_DEEP_VIBRATO, String());
+
+    StringArray chan_alloc_choices = {"Auto", "Off-delay", "Same inst", "Any released"};
+    p_chan_alloc = add_parameter<Pt::Choice>(p, 'chip', "chan_alloc", "Channel allocation mode", chan_alloc_choices, cs.chan_alloc, String());
 }
 
 Chip_Settings Parameter_Block::chip_settings() const
@@ -145,6 +148,7 @@ Chip_Settings Parameter_Block::chip_settings() const
     cs.emulator = p_emulator->getIndex();
     cs.chip_count = p_nchip->get();
     cs.fourop_count = p_n4op->get();
+    cs.chan_alloc = p_chan_alloc->getIndex() - 1;
     return cs;
 }
 
@@ -162,6 +166,7 @@ void Parameter_Block::set_chip_settings(const Chip_Settings &cs)
     *p_emulator = cs.emulator;
     *p_nchip = cs.chip_count;
     *p_n4op = cs.fourop_count;
+    *p_chan_alloc = cs.chan_alloc + 1;
 }
 
 void Parameter_Block::set_global_parameters(const Instrument_Global_Parameters &gp)

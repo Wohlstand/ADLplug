@@ -81,6 +81,7 @@ PropertySet Chip_Settings::to_properties() const
     set.setValue("emulator", (int)emulator);
     set.setValue("chip_count", (int)chip_count);
     set.setValue("4op_count", (int)fourop_count);
+    set.setValue("chan_alloc", (int)chan_alloc);
     return set;
 }
 
@@ -90,5 +91,6 @@ Chip_Settings Chip_Settings::from_properties(const PropertySet &set)
     cs.emulator = set.getIntValue("emulator");
     cs.chip_count = set.getIntValue("chip_count");
     cs.fourop_count = set.getIntValue("4op_count");
+    cs.chan_alloc = set.getIntValue("chan_alloc");
     return cs;
 }

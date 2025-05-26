@@ -61,6 +61,10 @@ public:
         { return adl_getNumChipsObtained(player_.get()); }
     bool set_num_chips(unsigned chips)
         { return adl_setNumChips(player_.get(), chips) == 0; }
+    int channel_alloc_mode() const
+        { return adl_getChannelAllocMode(player_.get()); }
+    void set_channel_alloc_mode(int allocmode)
+        { adl_setChannelAllocMode(player_.get(), allocmode); }
     unsigned num_4ops() const
         { return adl_getNumFourOpsChnObtained(player_.get()); }
     bool set_num_4ops(unsigned count);

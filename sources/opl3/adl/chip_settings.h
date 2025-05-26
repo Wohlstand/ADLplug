@@ -19,6 +19,7 @@ struct Chip_Settings {
     unsigned emulator = 0;
     unsigned chip_count = 2;
     unsigned fourop_count = 0;
+    int chan_alloc = -1;
 
     PropertySet to_properties() const;
     static Chip_Settings from_properties(const PropertySet &set);
