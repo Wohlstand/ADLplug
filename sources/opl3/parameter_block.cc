@@ -9,7 +9,7 @@
 #include "adl/player.h"
 #include "utility/pak.h"
 #include "resources.h"
-#include <wopl/wopl_file.h>
+#include <wopl.hpp>
 #include <fmt/format.h>
 #include <cassert>
 

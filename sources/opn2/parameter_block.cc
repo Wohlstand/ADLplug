@@ -9,6 +9,7 @@
 #include "adl/player.h"
 #include "utility/pak.h"
 #include "resources.h"
+#include <wopn.hpp>
 #include <fmt/format.h>
 #include <cassert>
 
