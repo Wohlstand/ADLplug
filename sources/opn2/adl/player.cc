@@ -79,6 +79,9 @@ std::vector<std::string> Player::enumerate_emulators()
     std::vector<std::string> names(32);
     size_t count = 0;
     for (unsigned i = 0, n = (unsigned)names.size(); i < n; ++i) {
+        if (i == OPNMIDI_VGM_DUMPER) {
+            continue; // Always skip the VGM dumper
+        }
         if (opn2_switchEmulator(pl.get(), i) == 0) {
             names[i] = opn2_chipEmulatorName(pl.get());
             count = i + 1;
