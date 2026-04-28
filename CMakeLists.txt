@@ -66,7 +66,7 @@ if(ADLplug_ASSERTIONS)
   add_definitions("-UNDEBUG")
 endif()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(WIN32)
   if(CMAKE_COMPILER_IS_GNUCXX)
     # on MinGW JUCE defines a _WINNT_VER which disables some needed definitions
     add_definitions("-DREPLACEFILE_IGNORE_ACL_ERRORS=0x4")
@@ -224,34 +224,40 @@ endif()
 macro(add_plugin NAME)
   add_library("${NAME}" MODULE "sources/nothing.cc" ${ARGN})
   set_property(TARGET "${NAME}" PROPERTY PREFIX "")
+
   if(ADLplug_RT_CHECKER)
-    set_property(TARGET "${NAME}" APPEND_STRING
-      PROPERTY LINK_FLAGS " ${ADLplug_RT_CHECKER_LINK_FLAGS}")
+    set_property(TARGET "${NAME}" APPEND_STRING PROPERTY LINK_FLAGS " ${ADLplug_RT_CHECKER_LINK_FLAGS}")
   endif()
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     target_sources("${NAME}" PRIVATE "${JUCE_PROJECT_DIR}/juce/Builds/VisualStudio2017/resources.rc")
   endif()
+
   static_link_mingw_crt("${NAME}")
 endmacro()
 
 macro(add_standalone NAME)
   add_executable("${NAME}" WIN32 MACOSX_BUNDLE "sources/nothing.cc" ${ARGN})
   set_property(TARGET "${NAME}" PROPERTY PREFIX "")
+
   if(ADLplug_RT_CHECKER)
     set_property(TARGET "${NAME}" APPEND_STRING
       PROPERTY LINK_FLAGS " ${ADLplug_RT_CHECKER_LINK_FLAGS}")
   endif()
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     target_sources("${NAME}" PRIVATE "${JUCE_PROJECT_DIR}/juce/Builds/VisualStudio2017/resources.rc")
     set_target_properties("${NAME}" PROPERTIES WIN32_EXECUTABLE ON)
   endif()
+
   static_link_mingw_crt("${NAME}")
 endmacro()
 
 if(ADLplug_VST2)
   add_plugin(ADLplug_VST2)
   target_link_libraries(ADLplug_VST2 PRIVATE juce_audio_plugin_client_VST2 ADLplug_core)
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     if(ADLplug_TARGET_ARCH MATCHES "^i.86$" OR
         ADLplug_TARGET_ARCH STREQUAL "x86")
       target_sources(ADLplug_VST2 PRIVATE "${PROJECT_SOURCE_DIR}/sources/link/VST2-32.def")
@@ -261,9 +267,11 @@ if(ADLplug_VST2)
   else()
     require_symbols(ADLplug_VST2 "VSTPluginMain")
   endif()
+
   set_target_properties(ADLplug_VST2 PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" LIBRARY_OUTPUT_DIRECTORY "vst2")
-  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+  if(APPLE)
     set_target_properties(ADLplug_VST2 PROPERTIES
       PREFIX "" SUFFIX "" LIBRARY_OUTPUT_DIRECTORY "vst2/${ADLplug_NAME}.vst/Contents/MacOS")
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vst2/${ADLplug_NAME}.vst/Contents/")
@@ -280,22 +288,26 @@ if(ADLplug_VST2)
       "${JUCE_PROJECT_DIR}/juce/Builds/MacOSX/RecentFilesMenuTemplate.nib"
       "${CMAKE_CURRENT_BINARY_DIR}/vst2/${ADLplug_NAME}.vst/Contents/Resources/RecentFilesMenuTemplate.nib")
     execute_process(COMMAND "${CMAKE_COMMAND}" -E create_symlink "/Library/Audio/Plug-Ins/VST" "${CMAKE_CURRENT_BINARY_DIR}/vst2/VST Plug-Ins")
-  elseif(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  elseif(NOT WIN32)
     install(TARGETS ADLplug_VST2 DESTINATION "${CMAKE_INSTALL_LIBDIR}/vst")
   endif()
 endif()
 
 if(ADLplug_VST3)
-  if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin"))
+  if(NOT (WIN32 OR APPLE))
     message(FATAL_ERROR "VST3 is not supported on ${CMAKE_SYSTEM_NAME}")
   endif()
+
   add_plugin(ADLplug_VST3)
+
   target_link_libraries(ADLplug_VST3 PRIVATE juce_audio_plugin_client_VST3 ADLplug_core)
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     target_sources(ADLplug_VST3 PRIVATE "${PROJECT_SOURCE_DIR}/sources/link/VST3.def")
   else()
     require_symbols(ADLplug_VST3 "GetPluginFactory")
   endif()
+
   set_target_properties(ADLplug_VST3 PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" LIBRARY_OUTPUT_DIRECTORY "vst3")
   if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -321,7 +333,8 @@ endif()
 if(ADLplug_LV2)
   add_plugin(ADLplug_LV2)
   target_link_libraries(ADLplug_LV2 PRIVATE juce_audio_plugin_client_LV2 ADLplug_core)
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     target_sources(ADLplug_LV2 PRIVATE "${PROJECT_SOURCE_DIR}/sources/link/LV2.def")
   else()
     require_symbols(ADLplug_LV2 "lv2_generate_ttl" "lv2_descriptor" "lv2ui_descriptor")
@@ -329,9 +342,9 @@ if(ADLplug_LV2)
   set_target_properties(ADLplug_LV2 PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" LIBRARY_OUTPUT_DIRECTORY "lv2/${ADLplug_NAME}.lv2")
 
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  if(WIN32)
     set(LV2_UI_CLASS "ui:WindowsUI")
-  elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  elseif(APPLE)
     set(LV2_UI_CLASS "ui:CocoaUI")
   else()
     set(LV2_UI_CLASS "ui:X11UI")
@@ -352,23 +365,26 @@ if(ADLplug_LV2)
     DEPENDS ${ADLplug_LV2_MANIFESTS}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
-  if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "Windows"))
+  if(NOT (APPLE OR WIN32))
     install(TARGETS ADLplug_LV2 DESTINATION "${CMAKE_INSTALL_LIBDIR}/lv2/${ADLplug_NAME}.lv2")
     install(FILES ${ADLplug_LV2_MANIFESTS} DESTINATION "${CMAKE_INSTALL_LIBDIR}/lv2/${ADLplug_NAME}.lv2")
   endif()
 endif()
 
 if(ADLplug_AU)
-  if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  if(NOT APPLE)
     message(FATAL_ERROR "AU is not supported on ${CMAKE_SYSTEM_NAME}")
   endif()
+
   add_plugin(ADLplug_AU)
   target_link_libraries(ADLplug_AU PRIVATE juce_audio_plugin_client_AU ADLplug_core)
   require_symbols(ADLplug_AU "${ADLplug_NAME}AUEntry" "${ADLplug_NAME}AUFactory")
   set_target_properties(ADLplug_AU PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" PREFIX "" SUFFIX "" LIBRARY_OUTPUT_DIRECTORY "au/${ADLplug_NAME}.component/Contents/MacOS")
+
   file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/au/${ADLplug_NAME}.component/Contents/")
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/au/${ADLplug_NAME}.component/Contents/PkgInfo" "BNDL????")
+
   add_custom_target(ADLplug_AU_InfoPlist ALL
     "${CMAKE_COMMAND}"
     "-DCONFIGURE_FILE_INPUT=${JUCE_PROJECT_DIR}/juce/Builds/MacOSX/Info-AU.plist"
@@ -390,9 +406,9 @@ endif()
 if(ADLplug_Standalone)
   add_standalone(ADLplug_Standalone "sources/nothing.cc")
   target_link_libraries(ADLplug_Standalone PRIVATE juce_audio_plugin_client_Standalone juce_audio_devices juce_audio_formats juce_audio_utils ADLplug_core)
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    if(ADLplug_TARGET_ARCH MATCHES "^i.86$" OR
-        ADLplug_TARGET_ARCH STREQUAL "x86")
+
+  if(WIN32)
+    if(ADLplug_TARGET_ARCH MATCHES "^i.86$" OR ADLplug_TARGET_ARCH STREQUAL "x86")
       require_symbols(ADLplug_Standalone "_WinMain@16")
     else()
       require_symbols(ADLplug_Standalone "WinMain")
@@ -400,12 +416,15 @@ if(ADLplug_Standalone)
   else()
     require_symbols(ADLplug_Standalone "main")
   endif()
+
   set_target_properties(ADLplug_Standalone PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" RUNTIME_OUTPUT_DIRECTORY "standalone")
+
   if(NOT ADLplug_Jack)
     install(TARGETS ADLplug_Standalone DESTINATION "${CMAKE_INSTALL_BINDIR}")
   endif()
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+  if(WIN32)
     target_sources(ADLplug_Standalone PRIVATE
       "resources/application/${ADLplug_NAME}.rc")
   endif()
@@ -416,17 +435,19 @@ if(ADLplug_Jack)
   target_link_libraries(ADLplug_Jack PRIVATE juce_audio_plugin_client_StandaloneCustom ADLplug_core ${JACK_LIBRARIES})
   target_include_directories(ADLplug_Jack PRIVATE "thirdparty/nonlib" ${JACK_INCLUDE_DIRS})
   link_directories(${JACK_LIBRARY_DIRS})
+
   if(LIBLO_FOUND)
     target_compile_definitions(ADLplug_Jack PRIVATE "ADLPLUG_USE_NSM=1")
     target_include_directories(ADLplug_Jack PRIVATE ${LIBLO_INCLUDE_DIRS})
     target_link_libraries(ADLplug_Jack PRIVATE ${LIBLO_LIBRARIES})
   endif()
+
   set_target_properties(ADLplug_Jack PROPERTIES
     OUTPUT_NAME "${ADLplug_NAME}" RUNTIME_OUTPUT_DIRECTORY "jack")
   install(TARGETS ADLplug_Jack DESTINATION "${CMAKE_INSTALL_BINDIR}")
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_sources(ADLplug_Jack PRIVATE
-      "resources/application/${ADLplug_NAME}.rc")
+
+  if(WIN32)
+    target_sources(ADLplug_Jack PRIVATE "resources/application/${ADLplug_NAME}.rc")
   endif()
 endif()
 
@@ -436,21 +457,26 @@ if(ADLplug_Standalone OR ADLplug_Jack)
   install(FILES "resources/application/${ADLplug_NAME}-32.png"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/pixmaps"
     RENAME "${ADLplug_NAME}.png")
+
   foreach(size 32;96)
     install(FILES "resources/application/${ADLplug_NAME}-${size}.png"
       DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/${size}x${size}/apps"
       RENAME "${ADLplug_NAME}.png")
   endforeach()
-  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+  if(APPLE)
     add_custom_target(ADLplug_Standalone_icon_copy ALL
       "${CMAKE_COMMAND}" -E copy
       "${PROJECT_SOURCE_DIR}/resources/application/${ADLplug_NAME}.icns"
       "${CMAKE_CURRENT_BINARY_DIR}/standalone/${ADLplug_NAME}.app/Contents/Resources/${ADLplug_NAME}.icns"
       DEPENDS "${PROJECT_SOURCE_DIR}/resources/application/${ADLplug_NAME}.icns")
+
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/standalone/${ADLplug_NAME}.app/Contents/Resources/")
+
     execute_process(COMMAND "${CMAKE_COMMAND}" -E copy
       "${JUCE_PROJECT_DIR}/juce/Builds/MacOSX/RecentFilesMenuTemplate.nib"
       "${CMAKE_CURRENT_BINARY_DIR}/standalone/${ADLplug_NAME}.app/Contents/Resources/RecentFilesMenuTemplate.nib")
+
     execute_process(COMMAND "${CMAKE_COMMAND}" -E create_symlink "/Applications" "${CMAKE_CURRENT_BINARY_DIR}/standalone/Applications")
   endif()
 endif()
