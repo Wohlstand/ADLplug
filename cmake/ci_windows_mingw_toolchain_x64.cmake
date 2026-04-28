@@ -1,6 +1,7 @@
 set(CMAKE_SYSROOT "C:/MinGW-w64/mingw64/")
 
 set(CMAKE_SYSTEM_NAME "Windows")
+set(CMAKE_SYSTEM_PROCESSOR "x86_64")
 
 set(CMAKE_SYSTEM_PREFIX_PATH "C:/MinGW-w64/mingw64/")
 
