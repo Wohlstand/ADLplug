@@ -42,7 +42,7 @@ jobs:
             PLATFORM: Win32,
             WINXX_ARCH: win32,
             extra_path: "/c/MinGW-w64/mingw32/bin",
-            extra_options: "-DCMAKE_TOOLCHAIN_FILE=`pwd`/cmake/ci_windows_mingw_toolchain_x64.cmake -DADLplug_CHIP=OPL3 -DADLplug_PCH=ON -DADLplug_LV2=ON -DWITH_GENADLDATA=OFF -DlibADLMIDI_STATIC=ON -DlibADLMIDI_SHARED=OFF -DUSE_NUKED_OPL3_LLE_EMULATOR=ON -DUSE_NUKED_OPL2_LLE_EMULATOR=ON",
+            extra_options: "-DCMAKE_TOOLCHAIN_FILE=`pwd`/cmake/ci_windows_mingw_toolchain_x32.cmake -DADLplug_CHIP=OPL3 -DADLplug_PCH=ON -DADLplug_LV2=ON -DWITH_GENADLDATA=OFF -DlibADLMIDI_STATIC=ON -DlibADLMIDI_SHARED=OFF -DUSE_NUKED_OPL3_LLE_EMULATOR=ON -DUSE_NUKED_OPL2_LLE_EMULATOR=ON",
             build_type: "Release",
             upload_directory: "www/win32/",
             mingw_download: "https://wohlsoft.ru/docs/Software/MinGW/i686-12.2.0-release-posix-dwarf-rt_v10-rev1.7z", mingw_install_dir: "C:/MinGW-w64/",
@@ -71,7 +71,7 @@ jobs:
             PLATFORM: Win32,
             WINXX_ARCH: win32,
             extra_path: "/c/MinGW-w64/mingw32/bin",
-            extra_options: "-DCMAKE_TOOLCHAIN_FILE=`pwd`/cmake/ci_windows_mingw_toolchain_x64.cmake -DADLplug_CHIP=OPN2 -DADLplug_PCH=ON -DADLplug_LV2=ON -DlibOPNMIDI_STATIC=ON -DlibOPNMIDI_SHARED=OFF -DUSE_NUKED_OPN2_LLE_EMULATOR=ON -DUSE_NUKED_OPNA_LLE_EMULATOR=ON",
+            extra_options: "-DCMAKE_TOOLCHAIN_FILE=`pwd`/cmake/ci_windows_mingw_toolchain_x32.cmake -DADLplug_CHIP=OPN2 -DADLplug_PCH=ON -DADLplug_LV2=ON -DlibOPNMIDI_STATIC=ON -DlibOPNMIDI_SHARED=OFF -DUSE_NUKED_OPN2_LLE_EMULATOR=ON -DUSE_NUKED_OPNA_LLE_EMULATOR=ON",
             build_type: "Release",
             upload_directory: "www/win32/",
             mingw_download: "https://wohlsoft.ru/docs/Software/MinGW/i686-12.2.0-release-posix-dwarf-rt_v10-rev1.7z", mingw_install_dir: "C:/MinGW-w64/",
@@ -185,7 +185,7 @@ jobs:
         mkdir _packed
         7z a -t7z -mx9 "_packed/${{ matrix.config.archive_name}}.7z" "build/standalone" "build/lv2" "build/vst2"
 
-    - name: Deploy to builds.wohlsoft.ru
+    - name: Deploy to builds-wohlsoft-ru
       if: success() && github.event_name != 'pull_request' && steps.event-check.outputs.is_pull_request == 'false' && steps.upload-check.outputs.available == 'true'
       shell: bash
       run: |
