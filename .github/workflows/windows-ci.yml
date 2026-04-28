@@ -66,7 +66,7 @@ jobs:
             archive_name: "OPNPlug-Release-x64"
           }
         - {
-            name: "ADLPlug MinGW-w64 32b Rel",
+            name: "OPNPlug MinGW-w64 32b Rel",
             os: windows-latest,
             PLATFORM: Win32,
             WINXX_ARCH: win32,
