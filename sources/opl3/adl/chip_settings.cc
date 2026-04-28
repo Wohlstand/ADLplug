@@ -57,6 +57,9 @@ Emulator_Defaults &get_emulator_defaults()
     Image icon_nuked2 = ImageFileFormat::loadFrom(Res::emu_nuked2.data, Res::emu_nuked2.size);
     Image icon_opal = ImageFileFormat::loadFrom(Res::emu_opal.data, Res::emu_opal.size);
     Image icon_java = ImageFileFormat::loadFrom(Res::emu_java.data, Res::emu_java.size);
+
+    // FIXME: Add missing icons
+
     unsigned nth_icon_nuked = 0;
     for (unsigned i = 0; i < count; ++i) {
         const String &name = defaults->choices[i];
@@ -69,6 +72,8 @@ Emulator_Defaults &get_emulator_defaults()
             defaults->images[i] = icon_opal;
         else if (lowerName.startsWith("java"))
             defaults->images[i] = icon_java;
+        else
+            defaults->images[i] = icon_nuked; // FALLBACK!
     }
 
     emulator_defaults_ = std::move(defaults_u);

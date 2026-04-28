@@ -55,6 +55,9 @@ Emulator_Defaults &get_emulator_defaults()
     Image icon_nuked = ImageFileFormat::loadFrom(Res::emu_nuked.data, Res::emu_nuked.size);
     Image icon_gens = ImageFileFormat::loadFrom(Res::emu_gens.data, Res::emu_gens.size);
     Image icon_neko = ImageFileFormat::loadFrom(Res::emu_neko.data, Res::emu_neko.size);
+
+    // FIXME: Add more icons
+
     for (unsigned i = 0; i < count; ++i) {
         const String &name = defaults->choices[i];
         String lowerName = name.toLowerCase();
@@ -66,6 +69,8 @@ Emulator_Defaults &get_emulator_defaults()
             defaults->images[i] = icon_gens;
         else if (lowerName.startsWith("neko"))
             defaults->images[i] = icon_neko;
+        else
+            defaults->images[i] = icon_nuked; // FALLBACK!
     }
 
     emulator_defaults_ = std::move(defaults_u);
