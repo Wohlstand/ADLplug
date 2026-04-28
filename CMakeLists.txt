@@ -34,6 +34,7 @@ set(ADLplug_CHIP "OPL3" CACHE STRING "Kind of synthesizer chip (OPL3, OPN2)")
 
 include(GNUWarnings)
 include(LinkHelpers)
+include(cmake/TargetArch.cmake)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,6 +44,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_VISIBILITY_PRESET "hidden")
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+target_architecture(ADLplug_TARGET_ARCH)
+
+message("== Target CPU architecture: ${ADLplug_TARGET_ARCH}")
 
 enable_gnu_warning("all")
 disable_gnu_warning("unknown-warning-option")
@@ -246,8 +251,8 @@ if(ADLplug_VST2)
   add_plugin(ADLplug_VST2)
   target_link_libraries(ADLplug_VST2 PRIVATE juce_audio_plugin_client_VST2 ADLplug_core)
   if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$" OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL "x86")
+    if(ADLplug_TARGET_ARCH MATCHES "^i.86$" OR
+        ADLplug_TARGET_ARCH STREQUAL "x86")
       target_sources(ADLplug_VST2 PRIVATE "${PROJECT_SOURCE_DIR}/sources/link/VST2-32.def")
     else()
       target_sources(ADLplug_VST2 PRIVATE "${PROJECT_SOURCE_DIR}/sources/link/VST2-64.def")
@@ -385,8 +390,8 @@ if(ADLplug_Standalone)
   add_standalone(ADLplug_Standalone "sources/nothing.cc")
   target_link_libraries(ADLplug_Standalone PRIVATE juce_audio_plugin_client_Standalone juce_audio_devices juce_audio_formats juce_audio_utils ADLplug_core)
   if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$" OR
-        CMAKE_SYSTEM_PROCESSOR STREQUAL "x86")
+    if(ADLplug_TARGET_ARCH MATCHES "^i.86$" OR
+        ADLplug_TARGET_ARCH STREQUAL "x86")
       require_symbols(ADLplug_Standalone "_WinMain@16")
     else()
       require_symbols(ADLplug_Standalone "WinMain")
